@@ -43,17 +43,19 @@ async function bootstrap(): Promise<void> {
   // Also behave as a TCP microservice so notification-service can push events
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
-    options:   { host: '0.0.0.0', port: ENDPOINTS.GATEWAY.port },
+    options: { host: '0.0.0.0', port: ENDPOINTS.GATEWAY.port },
   });
 
   await app.startAllMicroservices();
 
   const httpPort = +(process.env.PORT || 4000);
-  await app.listen(httpPort);
+  
+  // FIXED: Explicitly bind to '0.0.0.0' so Render can detect open port and health checks succeed
+  await app.listen(httpPort, '0.0.0.0');
 
   new Logger('api-gateway').log(
-    `REST API on http://localhost:${httpPort}/api` +
-    `  ·  events on tcp://0.0.0.0:${ENDPOINTS.GATEWAY.port}`,
+    `REST API listening on 0.0.0.0:${httpPort}/api` +
+      `  ·  events on tcp://0.0.0.0:${ENDPOINTS.GATEWAY.port}`,
   );
 }
 
