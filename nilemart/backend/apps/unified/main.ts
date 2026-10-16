@@ -7,9 +7,6 @@ import { config } from 'dotenv';
 config();
 
 // ── Force all service hosts to loopback (single-container deploy) ────────────
-// When all microservices run inside one container (e.g. on Render), they must
-// communicate over the loopback interface. Override the HOST env vars so that
-// the ENDPOINTS constants (read at import-time) resolve to 127.0.0.1.
 process.env.AUTH_HOST    = '127.0.0.1';
 process.env.CATALOG_HOST = '127.0.0.1';
 process.env.ORDER_HOST   = '127.0.0.1';
@@ -40,7 +37,7 @@ async function bootstrap(): Promise<void> {
     { name: 'auth-service',         module: AuthModule,          port: ENDPOINTS.AUTH.port },
     { name: 'catalog-service',      module: CatalogModule,       port: ENDPOINTS.CATALOG.port },
     { name: 'order-service',        module: OrdersModule,        port: ENDPOINTS.ORDER.port },
-    { name: 'notification-service', module: NotificationsModule,  port: ENDPOINTS.NOTIFY.port },
+    { name: 'notification-service', module: NotificationsModule, port: ENDPOINTS.NOTIFY.port },
   ];
 
   for (const svc of services) {
@@ -73,7 +70,7 @@ async function bootstrap(): Promise<void> {
 
   const envOrigins = process.env.WEB_ORIGIN
     ?.split(',')
-    .map((origin) => origin.trim().replace(/\/$/, '')) // strip trailing slash if present
+    .map((origin) => origin.trim().replace(/\/$/, ''))
     .filter(Boolean) || [];
 
   const configuredOrigins = Array.from(new Set([...envOrigins, ...defaultOrigins]));
@@ -97,12 +94,15 @@ async function bootstrap(): Promise<void> {
 
   await app.startAllMicroservices();
 
+  // Render provides process.env.PORT dynamically. Fall back to 4000 for local dev.
   const httpPort = +(process.env.PORT || 4000);
+  
+  // MUST bind to '0.0.0.0' for Render port detection
   await app.listen(httpPort, '0.0.0.0');
 
   logger.log(
     `API gateway listening on http://0.0.0.0:${httpPort}/api` +
-      `  ·  events on tcp://127.0.0.1:${ENDPOINTS.GATEWAY.port}`,
+      ` · events on tcp://127.0.0.1:${ENDPOINTS.GATEWAY.port}`,
   );
   logger.log('All services started successfully in unified mode');
 }
