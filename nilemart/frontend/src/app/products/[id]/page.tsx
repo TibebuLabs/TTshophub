@@ -187,12 +187,16 @@ export default function ProductPage() {
               </span>
             )}
             <div className="absolute inset-0 p-5">
-              <img src={p.images[selectedImage] ?? p.images[0]} alt={p.name} className="h-full w-full rounded-2xl object-cover" />
+              <img
+                src={p.images?.[selectedImage] ?? p.images?.[0] ?? '/placeholder.png'}
+                alt={p.name}
+                className="h-full w-full rounded-2xl object-cover"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-4 gap-3">
-            {p.images.map((img, index) => (
+            {p.images?.map((img, index) => (
               <button
                 key={`${p.id}-${index}`}
                 type="button"

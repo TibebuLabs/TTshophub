@@ -549,7 +549,11 @@ function Checkout() {
             {lines.map((line) => (
               <div key={line.product.id} className="flex items-center gap-3 border-b border-line pb-3 last:border-0 last:pb-0">
                 <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-line bg-bg/70">
-                  <img src={line.product.images[0]} alt={line.product.name} className="h-full w-full object-cover" />
+                  <img
+                    src={line.product.images?.[0] || '/placeholder.png'}
+                    alt={line.product.name}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
@@ -583,7 +587,9 @@ function Checkout() {
               <div className="h-full rounded-full bg-gradient-to-r from-brand to-amber-400 transition-all" style={{ width: `${freeShippingProgress}%` }} />
             </div>
             <p className="mt-2 text-xs text-mute">
-              {subtotal >= config.freeShippingOver ? 'You unlocked free nationwide delivery.' : `Add ${etb(config.freeShippingOver - subtotal)} more for free delivery.`}
+              {subtotal >= config.freeShippingOver
+                ? 'You unlocked free nationwide delivery.'
+                : `Add ${etb(config.freeShippingOver - subtotal)} more for free delivery.`}
             </p>
           </div>
 
