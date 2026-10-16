@@ -25,15 +25,26 @@ async function bootstrap(): Promise<void> {
   // All REST routes are prefixed with /api
   app.setGlobalPrefix('api');
 
-  // Allow the configured frontend origin(s) to make cross-origin requests
-  const configuredOrigins = process.env.WEB_ORIGIN
+  // Parse WEB_ORIGIN and provide sensible fallbacks for Render frontend and local development
+  const defaultOrigins = [
+    'https://ttshophub-frontend.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ];
+
+  const envOrigins = process.env.WEB_ORIGIN
     ?.split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-  if (!configuredOrigins?.length) {
-    throw new Error('WEB_ORIGIN must include at least one valid origin');
-  }
-  app.enableCors({ origin: configuredOrigins, credentials: true });
+    .map((origin) => origin.trim().replace(/\/$/, '')) // strip trailing slash if present
+    .filter(Boolean) || [];
+
+  const configuredOrigins = Array.from(new Set([...envOrigins, ...defaultOrigins]));
+
+  app.enableCors({
+    origin: configuredOrigins,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'X-Requested-With'],
+    credentials: true,
+  });
 
   // Validate and transform request bodies automatically
   app.useGlobalPipes(
@@ -49,7 +60,7 @@ async function bootstrap(): Promise<void> {
   await app.startAllMicroservices();
 
   const httpPort = +(process.env.PORT || 4000);
-  
+
   // FIXED: Explicitly bind to '0.0.0.0' so Render can detect open port and health checks succeed
   await app.listen(httpPort, '0.0.0.0');
 
