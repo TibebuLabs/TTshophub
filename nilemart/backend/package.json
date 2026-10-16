@@ -4,7 +4,10 @@
   "private": true,
   "description": "NileMart – NestJS microservices (api-gateway, auth, catalog, order, notification)",
   "scripts": {
-    "build": "nest build api-gateway && nest build auth-service && nest build catalog-service && nest build order-service && nest build notification-service",
+    "build": "nest build unified",
+    "build:all": "nest build api-gateway && nest build auth-service && nest build catalog-service && nest build order-service && nest build notification-service",
+    "start": "node dist/apps/unified/main.js",
+    "start:prod": "node dist/apps/unified/main.js",
     "dev": "concurrently -n gateway,auth,catalog,orders,notify -c blue,green,yellow,magenta,cyan \"npm:dev:gateway\" \"npm:dev:auth\" \"npm:dev:catalog\" \"npm:dev:orders\" \"npm:dev:notify\"",
     "dev:gateway": "nest start api-gateway --watch",
     "dev:auth": "nest start auth-service --watch",

@@ -1,0 +1,53 @@
+# Render Blueprint – deploys the NileMart backend as a single web service.
+# All microservices run in-process via the "unified" entry point.
+# See https://render.com/docs/blueprint-spec for details.
+
+services:
+  - type: web
+    name: nilemart-backend
+    runtime: node
+    plan: free                        # or starter / standard
+    region: frankfurt                  # closest to EU-West-1 (Supabase)
+    rootDir: nilemart/backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+
+      # ── Inter-service hosts (all loopback, single container) ─────────
+      - key: AUTH_HOST
+        value: "127.0.0.1"
+      - key: AUTH_PORT
+        value: "4001"
+      - key: CATALOG_HOST
+        value: "127.0.0.1"
+      - key: CATALOG_PORT
+        value: "4002"
+      - key: ORDER_HOST
+        value: "127.0.0.1"
+      - key: ORDER_PORT
+        value: "4003"
+      - key: NOTIFY_HOST
+        value: "127.0.0.1"
+      - key: NOTIFY_PORT
+        value: "4004"
+      - key: GATEWAY_HOST
+        value: "127.0.0.1"
+      - key: GATEWAY_TCP_PORT
+        value: "4010"
+
+      # ── Secrets (set manually in Render dashboard) ───────────────────
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_INVITE_CODE
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: DATABASE_SSL_CA_PATH
+        value: "./certs/supabase-ca.crt"

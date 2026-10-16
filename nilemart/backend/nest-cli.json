@@ -69,6 +69,16 @@
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
+    },
+    "unified": {
+      "type": "application",
+      "root": "apps/unified",
+      "entryFile": "main",
+      "sourceRoot": "apps/unified",
+      "compilerOptions": {
+        "tsConfigPath": "apps/unified/tsconfig.app.json",
+        "webpack": true
+      }
     }
   }
 }

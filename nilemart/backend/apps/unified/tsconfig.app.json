@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/apps/unified"
+  },
+  "include": [
+    "main.ts",
+    "../api-gateway/src/**/*.ts",
+    "../auth-service/src/**/*.ts",
+    "../catalog-service/src/**/*.ts",
+    "../order-service/src/**/*.ts",
+    "../notification-service/src/**/*.ts",
+    "../../libs/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
