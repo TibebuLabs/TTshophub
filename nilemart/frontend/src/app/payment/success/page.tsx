@@ -86,7 +86,7 @@ export default function PaymentSuccessPage() {
         </h1>
         
         <p className="text-lg text-mute mb-6">
-          Thank you for your order. We've received your payment and will start processing your order shortly.
+          Thank you for your order. We&apos;ve received your payment and will start processing your order shortly.
         </p>
 
         {/* Order Reference */}
