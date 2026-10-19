@@ -1,148 +1,116 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
+import { api, useConfig } from '@/lib/api';
+import { etb } from '@/lib/format';
+import { useCart } from '@/lib/store';
 
-export default function BankTransferPage() {
+function BankTransferContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const cfg = useConfig();
+  const { clear } = useCart();
+
+  const txRef = searchParams.get('tx_ref');
+  const amount = searchParams.get('amount');
   const orderId = searchParams.get('order_id');
-  const bank = searchParams.get('bank');
-  const [copied, setCopied] = useState(false);
 
-  const bankDetails = {
-    accountName: 'NileMart Trading PLC',
-    accountNumber: '1000123456789',
-    bankName: bank || 'Commercial Bank of Ethiopia',
-    branch: 'Addis Ababa Main Branch',
-    swift: 'CBETETAA',
-  };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleConfirm = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await api<any>(`/payments/verify/${txRef}`);
+      if (res.success) {
+        clear();
+        router.push(`/payment/success?tx_ref=${txRef}&order_id=${orderId || ''}`);
+      } else {
+        setError('Payment verification pending or failed. Please ensure you completed the transfer.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to verify transfer');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center py-8">
-      <div className="card max-w-2xl p-8 w-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/20 text-4xl">
+      <div className="card max-w-xl w-full p-8 shadow-soft">
+        <div className="text-center mb-6">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand/10 text-3xl">
             🏦
           </div>
-          <h1 className="text-3xl font-extrabold text-ink mb-2">
-            Bank Transfer Instructions
-          </h1>
-          <p className="text-mute">
-            Complete your payment using the details below
-          </p>
+          <h1 className="text-2xl font-black text-ink">Bank Transfer Payment</h1>
+          <p className="text-xs text-mute mt-1">Complete your transfer using the bank details below</p>
         </div>
 
-        {/* Bank Details Card */}
-        <div className="rounded-2xl border-2 border-brand/20 bg-gradient-to-br from-brand/5 to-amber-50 p-6 mb-6">
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="text-xs text-mute uppercase tracking-wider mb-1">Bank Name</div>
-                <div className="font-bold text-ink">{bankDetails.bankName}</div>
-              </div>
-            </div>
+        {amount && (
+          <div className="mb-6 rounded-xl bg-brand/5 p-4 text-center border border-brand/20">
+            <div className="text-xs text-mute">Amount to Transfer</div>
+            <div className="text-2xl font-black text-brand mt-1">{etb(Number(amount))}</div>
+          </div>
+        )}
 
-            <div className="border-t border-line pt-4">
-              <div className="text-xs text-mute uppercase tracking-wider mb-1">Account Name</div>
-              <div className="font-bold text-ink">{bankDetails.accountName}</div>
+        <div className="space-y-4 mb-6 text-sm">
+          <div className="rounded-xl bg-bg p-4 space-y-2 border border-line">
+            <div className="font-bold text-ink mb-1">Commercial Bank of Ethiopia (CBE)</div>
+            <div className="flex justify-between">
+              <span className="text-mute">Account Name:</span>
+              <span className="font-bold text-ink">NileMart Trading PLC</span>
             </div>
-
-            <div className="border-t border-line pt-4">
-              <div className="text-xs text-mute uppercase tracking-wider mb-1">Account Number</div>
-              <div className="flex items-center justify-between">
-                <div className="font-mono font-extrabold text-2xl text-brand">
-                  {bankDetails.accountNumber}
-                </div>
-                <button
-                  onClick={() => copyToClipboard(bankDetails.accountNumber)}
-                  className="btn btn-sm btn-outline"
-                >
-                  {copied ? '✓ Copied' : '📋 Copy'}
-                </button>
-              </div>
+            <div className="flex justify-between">
+              <span className="text-mute">Account Number:</span>
+              <span className="font-mono font-bold text-brand">1000123456789</span>
             </div>
+          </div>
 
-            <div className="border-t border-line pt-4 grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-mute uppercase tracking-wider mb-1">Branch</div>
-                <div className="font-semibold text-sm">{bankDetails.branch}</div>
-              </div>
-              <div>
-                <div className="text-xs text-mute uppercase tracking-wider mb-1">SWIFT Code</div>
-                <div className="font-semibold text-sm">{bankDetails.swift}</div>
-              </div>
+          <div className="rounded-xl bg-bg p-4 space-y-2 border border-line">
+            <div className="font-bold text-ink mb-1">Telebirr / Awash Bank</div>
+            <div className="flex justify-between">
+              <span className="text-mute">Merchant Number:</span>
+              <span className="font-mono font-bold text-brand">+251 911 000 000</span>
             </div>
           </div>
         </div>
 
-        {/* Instructions */}
-        <div className="rounded-xl bg-blue-500/10 p-6 mb-6">
-          <div className="font-bold text-ink mb-3 flex items-center gap-2">
-            <span className="text-blue-600">💡</span>
-            How to complete the transfer
+        {txRef && (
+          <div className="text-xs text-mute mb-6 text-center font-mono">
+            Reference ID: {txRef}
           </div>
-          <ol className="space-y-2 text-sm text-mute">
-            <li className="flex gap-3">
-              <span className="flex-none font-bold text-brand">1.</span>
-              <span>Visit your bank branch or use mobile/internet banking</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex-none font-bold text-brand">2.</span>
-              <span>Transfer the order amount to the account number above</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex-none font-bold text-brand">3.</span>
-              <span>Include your <strong>Order ID: {orderId?.slice(0, 8)}</strong> in the transfer reference</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex-none font-bold text-brand">4.</span>
-              <span>Keep the transaction receipt for verification</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex-none font-bold text-brand">5.</span>
-              <span>We&apos;ll verify and confirm your order within 24 hours</span>
-            </li>
-          </ol>
-        </div>
+        )}
 
-        {/* Important Notice */}
-        <div className="rounded-xl bg-warning/10 p-4 mb-6">
-          <div className="font-bold text-warning-600 mb-2 flex items-center gap-2">
-            <span>⚠️</span>
-            Important
+        {error && (
+          <div className="mb-4 rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium text-center">
+            {error}
           </div>
-          <ul className="space-y-1 text-sm text-mute">
-            <li>• Make sure to include your order ID in the transfer reference</li>
-            <li>• Save your transaction receipt until order is confirmed</li>
-            <li>• Orders are held for 48 hours pending payment verification</li>
-          </ul>
-        </div>
+        )}
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Link href="/orders" className="btn btn-primary flex-1">
-            📦 View My Orders
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleConfirm}
+            className="btn btn-primary w-full font-bold"
+          >
+            {loading ? 'Verifying Transfer...' : 'I Have Made the Transfer'}
+          </button>
+          <Link href="/checkout" className="btn btn-outline w-full text-center">
+            Cancel / Change Payment Method
           </Link>
-          <Link href="/" className="btn btn-outline flex-1">
-            🏠 Back to Home
-          </Link>
-        </div>
-
-        {/* Contact Support */}
-        <div className="mt-6 text-center text-sm text-mute">
-          <p>Need help with the transfer?</p>
-          <p className="mt-1">
-            <strong className="text-ink">Contact us:</strong> +251 911 000 000 or support@nilemart.et
-          </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BankTransferPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-mute">Loading bank transfer...</div>}>
+      <BankTransferContent />
+    </Suspense>
   );
 }
