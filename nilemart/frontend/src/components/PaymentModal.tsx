@@ -246,7 +246,7 @@ export default function PaymentModal({
                   <div className="absolute left-3 top-2.5 text-lg">📱</div>
                 </div>
                 <p className="mt-1 text-xs text-mute">
-                  We'll send a payment request. Open your app and approve with your PIN.
+                  We&apos;ll send a payment request. Open your app and approve with your PIN.
                 </p>
               </div>
             )}
@@ -272,7 +272,7 @@ export default function PaymentModal({
             </select>
             {selectedBank && (
               <div className="rounded-lg bg-blue-500/10 p-3 text-xs text-blue-700">
-                <strong>Note:</strong> After clicking Pay, you'll receive our bank account details 
+                <strong>Note:</strong> After clicking Pay, you&apos;ll receive our bank account details 
                 to complete the transfer. Please keep the transaction reference for verification.
               </div>
             )}
