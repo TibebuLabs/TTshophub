@@ -107,7 +107,7 @@ export default function BankTransferPage() {
             </li>
             <li className="flex gap-3">
               <span className="flex-none font-bold text-brand">5.</span>
-              <span>We'll verify and confirm your order within 24 hours</span>
+              <span>We&apos;ll verify and confirm your order within 24 hours</span>
             </li>
           </ol>
         </div>
