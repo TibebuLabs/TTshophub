@@ -5,6 +5,7 @@ export interface Product {
   nameAm: string;
   category: string;
   images?: string[];
+  emoji?: string; // <--- Added this to satisfy checkout build checks
   price: number;
   oldPrice: number;
   stock: number;
