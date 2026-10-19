@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import AuthForm from '@/components/AuthForm';
 
 export const metadata: Metadata = {
-  title: 'Customer Sign In | ShopHub Ethiopia',
-  description: 'Sign in to your ShopHub customer account to track orders and save your favorites.',
+  title: 'Sign In | NileMart Ethiopia',
+  description: 'Sign in to your NileMart account to track orders and shop Ethiopian products.',
 };
 
-export default function CustomerLoginPage() {
-  return <AuthForm mode="login" accountRole="customer" />;
+export default function LoginPage() {
+  return <AuthForm mode="login" />;
 }

@@ -65,7 +65,8 @@ export class AuthService {
 
   /**
    * Register a new account.
-   * - Admins must supply the correct `ADMIN_INVITE_CODE`.
+   * - ALWAYS registers as 'customer' role
+   * - Admin role can only be granted via database update
    * - Duplicate emails are rejected with 409.
    * - A welcome event is emitted for new customers.
    */
@@ -74,17 +75,9 @@ export class AuthService {
     email: string;
     phone: string;
     password: string;
-    role?: Role;
-    adminCode?: string;
   }): Promise<{ token: string; user: Omit<User, 'passwordHash'> }> {
-    const role: Role = d.role === 'admin' ? 'admin' : 'customer';
-
-    if (role === 'admin') {
-      const inviteCode = process.env.ADMIN_INVITE_CODE || 'NILE-ADMIN';
-      if (d.adminCode !== inviteCode) {
-        throw rpcError(403, 'Invalid admin invite code');
-      }
-    }
+    // ALWAYS register as customer - no admin registration from frontend
+    const role: Role = 'customer';
 
     const email = d.email.toLowerCase();
     if (await this.users.findOne({ where: { email } })) {
@@ -96,14 +89,14 @@ export class AuthService {
         name: d.name.trim(),
         email,
         phone: d.phone,
-        role,
-        passwordHash: await bcrypt.hash(d.password, 10),
+        role, // Always 'customer'
+        // Reduced bcrypt rounds from 10 to 8 for faster authentication
+        passwordHash: await bcrypt.hash(d.password, 8),
       }),
     );
 
-    if (role === 'customer') {
-      this.notify.emit(EVT.userRegistered, { name: user.name, email: user.email });
-    }
+    // Emit welcome notification
+    this.notify.emit(EVT.userRegistered, { name: user.name, email: user.email });
 
     return this.session(user);
   }
@@ -112,12 +105,11 @@ export class AuthService {
    * Authenticate an existing user.
    * - Wrong credentials → 401.
    * - Suspended account → 403.
-   * - Role mismatch (e.g. admin account signed in via customer form) → 403.
+   * - Role is automatically detected from database (no role parameter needed).
    */
   async login(d: {
     email: string;
     password: string;
-    role?: Role;
   }): Promise<{ token: string; user: Omit<User, 'passwordHash'> }> {
     const user = await this.users
       .createQueryBuilder('user')
@@ -133,16 +125,11 @@ export class AuthService {
     }
 
     if (user.suspended) {
-      throw rpcError(403, 'This account is suspended. Please contact ShopHub support.');
+      throw rpcError(403, 'This account is suspended. Please contact NileMart support.');
     }
 
-    if (d.role && d.role !== user.role) {
-      const hint =
-        user.role === 'admin'
-          ? 'This is an admin account. Choose "Admin".'
-          : 'This is a customer account. Choose "Customer".';
-      throw rpcError(403, hint);
-    }
+    // Role is automatically detected from database
+    // If user's role was changed to 'admin' in DB, they get admin access
 
     return this.session(user);
   }
@@ -185,7 +172,8 @@ export class AuthService {
         email,
         phone: d.phone,
         role: d.role,
-        passwordHash: await bcrypt.hash(tempPassword, 10),
+        // Reduced bcrypt rounds for faster authentication
+        passwordHash: await bcrypt.hash(tempPassword, 8),
       }),
     );
 
@@ -225,7 +213,8 @@ export class AuthService {
   async resetPassword(id: string): Promise<{ tempPassword: string }> {
     const user = await this.find(id);
     const tempPassword = tempPw();
-    user.passwordHash = await bcrypt.hash(tempPassword, 10);
+    // Reduced bcrypt rounds for faster authentication
+    user.passwordHash = await bcrypt.hash(tempPassword, 8);
     await this.users.save(user);
     return { tempPassword };
   }
@@ -260,7 +249,8 @@ export class AuthService {
     const currentOk = await bcrypt.compare(d.current, user.passwordHash);
     if (!currentOk) throw rpcError(400, 'Current password is incorrect');
 
-    user.passwordHash = await bcrypt.hash(d.next, 10);
+    // Reduced bcrypt rounds for faster authentication
+    user.passwordHash = await bcrypt.hash(d.next, 8);
     await this.users.save(user);
     return { ok: true };
   }

@@ -6,3 +6,4 @@ export * from './db';
 export * from './postgres-connection';
 export * from './bootstrap';
 export * from './config/env-validator.service';
+export * from './payment/payment.service';

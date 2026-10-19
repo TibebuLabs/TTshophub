@@ -53,9 +53,9 @@ export class OrdersService {
    *       See README → "Payments" for Telebirr / CBE Birr / Chapa integration.
    */
   async create(data: any): Promise<Order> {
-    const validPayments = ['cod', 'telebirr', 'cbe', 'chapa'];
+    const validPayments = ['cod', 'telebirr', 'cbe', 'chapa', 'bank', 'mpesa', 'ebirr'];
     if (!validPayments.includes(data.payment)) {
-      throw rpcError(400, 'Unsupported payment method. Please select cod, telebirr, cbe, or chapa.');
+      throw rpcError(400, 'Unsupported payment method. Please select cod, telebirr, cbe, chapa, bank, mpesa, or ebirr.');
     }
 
     const city = CITIES[data.city];

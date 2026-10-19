@@ -47,5 +47,11 @@ export const tcpClient = (
 ) => ({
   name,
   transport: Transport.TCP as const,
-  options: { host: ep.host, port: ep.port },
+  options: { 
+    host: ep.host, 
+    port: ep.port,
+    // Increase timeout to prevent connection errors
+    retryAttempts: 5,
+    retryDelay: 1000,
+  },
 });

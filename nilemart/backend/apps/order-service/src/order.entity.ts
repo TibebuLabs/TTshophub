@@ -85,6 +85,19 @@ export class Order {
   @Column({ type: 'timestamp', nullable: true })
   cancelledAt: Date;
 
+  /** Chapa payment checkout URL (for online payments) */
+  @Column({ type: 'text', nullable: true })
+  paymentUrl: string;
+
+  /** Chapa transaction reference */
+  @Column({ type: 'varchar', nullable: true })
+  @Index()
+  txRef: string;
+
+  /** Payment status for online payments */
+  @Column({ type: 'varchar', nullable: true })
+  paymentStatus: 'pending' | 'success' | 'failed';
+
   @CreateDateColumn()
   createdAt: Date;
 

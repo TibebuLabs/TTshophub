@@ -2,7 +2,14 @@
 export type Role = 'customer' | 'admin';
 
 /** Supported payment methods */
-export type PaymentMethod = 'telebirr' | 'cbe' | 'chapa' | 'cod';
+export type PaymentMethod =
+  | 'telebirr'
+  | 'cbe'
+  | 'chapa'
+  | 'cod'
+  | 'bank'
+  | 'mpesa'
+  | 'ebirr';
 
 /** Lifecycle states an order can be in */
 export type OrderStatus =

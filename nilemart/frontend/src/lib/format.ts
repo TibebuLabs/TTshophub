@@ -1,6 +1,7 @@
 import type { AppConfig, Product } from './types';
 import {
   Banknote,
+  Building2,
   Coffee,
   CreditCard,
   Dumbbell,
@@ -44,10 +45,28 @@ export const PAYMENTS = [
     hint: 'Commercial Bank of Ethiopia mobile money',
   },
   {
+    id: 'bank',
+    icon: Building2,
+    name: 'Bank Transfer',
+    hint: 'Direct transfer to any Ethiopian bank account',
+  },
+  {
     id: 'chapa',
     icon: CreditCard,
     name: 'Card / Chapa',
     hint: 'Debit card & online bank transfer',
+  },
+  {
+    id: 'mpesa',
+    icon: Smartphone,
+    name: 'M-Pesa Safaricom',
+    hint: 'Safaricom Ethiopia mobile money',
+  },
+  {
+    id: 'ebirr',
+    icon: Smartphone,
+    name: 'eBirr',
+    hint: 'eBirr wallet instant payment',
   },
   {
     id: 'cod',

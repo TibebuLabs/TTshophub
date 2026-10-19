@@ -43,13 +43,7 @@ export class RegisterDto {
   @Matches(PASSWORD, { message: 'Password needs 8+ characters with a letter and a number' })
   password: string;
 
-  @IsOptional()
-  @IsIn(['customer', 'admin'])
-  role?: 'customer' | 'admin';
-
-  @IsOptional()
-  @IsString()
-  adminCode?: string;
+  // No role or adminCode - always registers as customer
 }
 
 export class LoginDto {
@@ -59,9 +53,7 @@ export class LoginDto {
   @IsString()
   password: string;
 
-  @IsOptional()
-  @IsIn(['customer', 'admin'])
-  role?: 'customer' | 'admin';
+  // Role is automatically detected from database - no role parameter needed
 }
 
 export class ProfileDto {
@@ -157,8 +149,8 @@ export class CreateOrderDto {
   @IsIn(Object.keys(CITIES))
   city: string;
 
-  @IsIn(['cod', 'telebirr', 'cbe', 'chapa'], {
-    message: 'Payment method must be cod, telebirr, cbe, or chapa',
+  @IsIn(['cod', 'telebirr', 'cbe', 'chapa', 'bank', 'mpesa', 'ebirr'], {
+    message: 'Payment method must be cod, telebirr, cbe, chapa, bank, mpesa, or ebirr',
   })
   payment: string | undefined;
 }

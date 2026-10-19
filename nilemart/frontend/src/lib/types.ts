@@ -78,3 +78,26 @@ export interface CartLine {
   product: Product;
   qty: number;
 }
+
+/** Response from Chapa payment initialization. */
+export interface PaymentInitResponse {
+  success: boolean;
+  data?: {
+    checkoutUrl: string;
+    txRef: string;
+  };
+  error?: string;
+}
+
+/** Response from payment verification. */
+export interface PaymentVerifyResponse {
+  success: boolean;
+  data?: {
+    status: 'success' | 'failed' | 'pending';
+    amount: number;
+    currency: string;
+    method: string;
+    reference: string;
+  };
+  error?: string;
+}
