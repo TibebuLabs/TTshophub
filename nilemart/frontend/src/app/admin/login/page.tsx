@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function AdminLoginPage() {
   return (
     <div className="py-4">
-      <AuthForm mode="login" accountRole="admin" />
+      <AuthForm mode="login" />
     </div>
   );
 }
